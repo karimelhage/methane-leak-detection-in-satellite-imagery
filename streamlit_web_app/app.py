@@ -262,7 +262,7 @@ def detection():
                 # Make a prediction
                 output = model(image)
                 probs = torch.softmax(output, dim = 1)
-                pred = torch.argmax(probs, dim = 1).item()
+                _,pred = torch.max(output, dim = 1)
                 
                 if  pred == 1:
                     st.success("The model predicts that this image likely contains a methane plume.")
