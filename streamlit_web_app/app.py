@@ -119,6 +119,67 @@ def impact_and_use_cases():
 
     #st.image('path_to_some_image', use_column_width=True, caption="Caption for your image")
 
+#PAGES = {
+#    "Home": home,
+#    "Detection": detection,
+#    "Impact and Use Cases": impact_and_use_cases,
+#    "About Us / Contact Us": about_and_contact
+#}
+
+def home():
+    st.title("Welcome to CleanR's Methane Emission Detection Tool")
+    st.subheader("Using AI to Reduce Methane Emissions")
+
+    st.write("""
+    ## About CleanR
+    CleanR is a fast-growing start-up specialized in Methane emissions reporting. We're on a mission to reduce methane emissions by providing a clear method for MRV: monitoring, reporting, and verification. Utilizing the power of satellite imagery and deep learning, we're able to detect potential methane leaks, helping us take a step forward in environmental preservation.
+
+    ## The Problem
+    Methane is one of the most potent greenhouse gases, and its leaks pose a significant challenge in the fight against climate change. Early detection of methane leaks can help to significantly reduce the environmental impact.
+
+    ## Our Solution
+    Our tool uses a deep learning model trained on satellite images to detect potential methane plumes. Once a grayscale satellite image is uploaded, our model analyzes it and highlights areas with potential methane leaks, providing a confidence score along with the prediction. It's an effective way to monitor large areas and identify potential methane leaks quickly.
+
+    ## How It Works
+    1. **Upload a grayscale satellite image in .tif format:** Our tool accepts grayscale satellite images in .tif format for analysis.
+    2. **Our model analyzes the image:** Using deep learning, our model identifies potential methane leaks in the image.
+    3. **View the results:** Our tool highlights areas of potential methane leaks and provides a confidence score for its prediction.
+
+    Ready to start? Navigate to the 'Detection' page on the sidebar.
+    """)
+
+    st.header("Contact Us")
+    st.markdown("For any inquiries or feedback, please contact us at: info@cleanr.com")
+
+    #st.image('path_to_some_image', use_column_width=True, caption="Caption for your image")
+
+def impact_and_use_cases():
+    st.title("Impact and Use Cases")
+
+    st.markdown("""
+    ## Impact
+    Methane is one of the most potent greenhouse gases, over 25 times more potent than carbon dioxide in terms of heat-trapping capability. By detecting methane leaks early, we can significantly reduce the environmental impact and contribute to the fight against climate change.
+
+    Our tool can help various industries and sectors, including oil and gas, waste management, and agriculture, by identifying and quantifying methane emissions, leading to more sustainable operations.
+
+    ## Use Cases
+    ### Oil and Gas Industry
+    Methane is a major component of natural gas. Unintended leaks during extraction, storage, and transportation can contribute significantly to greenhouse gas emissions. Our tool can help detect leaks early and prevent environmental damage.
+
+    ### Waste Management
+    Landfills are a major source of methane emissions. By using our tool, waste management facilities can monitor their sites for methane leaks and take appropriate action.
+
+    ### Agriculture
+    Methane is produced by certain agricultural practices, particularly those involving livestock. Our tool can help farmers identify potential sources of methane emissions on their farms and develop more sustainable practices.
+
+    ## Testimonials
+    > "CleanR's Methane Emission Detection Tool has been instrumental in helping us identify and fix several leaks in our natural gas infrastructure. It's easy to use and has already saved us a lot in potential fines and environmental damage." - **John Doe, Oil and Gas Company**
+
+    > "As a landfill operator, being able to monitor our site for methane emissions has been incredibly helpful. We've been able to identify several problem areas and address them quickly." - **Jane Doe, Waste Management Company**
+    """)
+
+    #st.image('path_to_some_image', use_column_width=True, caption="Caption for your image")
+
 def create_model():
     # Load the pre-trained ResNet50 model
     import ssl
