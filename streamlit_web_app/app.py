@@ -138,23 +138,6 @@ model.load_state_dict(torch.load('models/resnet50_0.9268.pth', map_location=torc
 # Set the model to eval mode
 model.eval()
 
-# Hook function containers
-activation = []
-grad = []
-
-# To get feature maps
-def forward_hook(module, input, output):
-    activation.append(output)
-
-# To get gradients
-def backward_hook(module, grad_in, grad_out):
-    grad.append(grad_out[0])
-
-# Registering the hooks on the final convolutional layer of your model
-final_layer = model._modules.get('layer4')  # adjust this according to your model architecture
-final_layer.register_forward_hook(forward_hook)
-final_layer.register_backward_hook(backward_hook)
-
 # Create a function to load and preprocess the image
 def load_and_prep_image(image):
     # Open the image file
@@ -174,11 +157,20 @@ def load_and_prep_image(image):
 
 # Grad-CAM function
 def Grad_CAM(input_img, model):
-    activation.clear()  # clear previous activations if any
-    grad.clear()  # clear previous gradients if any
+    activation = []
+    grad = []
+
+    def activation_hook(module, input, output):
+        activation.append(output)
+
+    def gradient_hook(module, grad_input, grad_output):
+        grad.append(grad_output[0])
+
+    handle_activation = model.layer4[2].conv3.register_forward_hook(activation_hook)
+    handle_gradient = model.layer4[2].conv3.register_backward_hook(gradient_hook)
 
     # Forward pass to get activations
-    out = model(input_img.view(1, 1, 64, 64))
+    out = model(input_img)
 
     # Get the score for the target class (assuming index 1 is the positive class)
     score = out[0, 1]
@@ -189,29 +181,52 @@ def Grad_CAM(input_img, model):
     # Backward pass to get gradients
     score.backward()
 
-    # get the gradients and activations collected in the hook
-    grads = grad[0].data.numpy().squeeze()
-    fmap = activation[0].data.numpy().squeeze()
+    # Remove the hooks after collecting activations and gradients
+    handle_activation.remove()
+    handle_gradient.remove()
 
-    # Calculating cam
-    tmp = grads.reshape([grads.shape[0], -1])
-    weights = np.mean(tmp, axis = 1)
-    
-    cam = np.zeros(grads.shape[1:])
-    for i, w in enumerate(weights):
-        cam += w * fmap[i, :, :]
-    
+    # Get the gradients and activations collected in the hooks
+    grads = grad[0].detach().numpy().squeeze()
+    fmap = activation[0].detach().numpy().squeeze()
+
+    # Expand the dimensions of fmap
+    fmap = np.expand_dims(fmap, axis=0) if len(fmap.shape) == 2 else fmap
+
+    # Calculate the Grad-CAM
+    weights = np.mean(grads, axis=(1, 2))
+    weights = weights.reshape(-1, 1, 1)
+    weights = np.repeat(weights, fmap.shape[1], axis=1)
+    weights = np.repeat(weights, fmap.shape[2], axis=2)
+
+    cam = np.sum(weights * fmap, axis=0)
     cam = np.maximum(cam, 0)
-    cam = cam / cam.max()
-    
-    # Adding heatmap to the original picture
-    npic = np.array(input_img).squeeze()
-    npic = cv2.cvtColor(npic,cv2.COLOR_GRAY2RGB)  # convert grayscale image to 3-channel grayscale
-    cam = cv2.resize(cam, (npic.shape[1], npic.shape[0]))
-    heatmap = cv2.applyColorMap(np.uint8(cam * 255), cv2.COLORMAP_JET)
-    cam_img = npic * 1 + heatmap * 0.4  # change the overlay formula to suit grayscale image
-    
-    return (cam_img)
+
+    # Resize the gradients and feature map to match the input image size
+    resized_grads = cv2.resize(grads, (input_img.shape[3], input_img.shape[2]))
+    resized_fmap = cv2.resize(fmap, (input_img.shape[3], input_img.shape[2]))
+
+    # Calculate the Grad-CAM
+    cam = np.sum(resized_grads * resized_fmap, axis=0)
+    cam = np.maximum(cam, 0)
+
+    # Normalize the Grad-CAM
+    cam = cam / (np.max(cam) + 1e-10)
+
+    # Apply color mapping to the Grad-CAM
+    heatmap = cv2.applyColorMap(np.uint8(255 * cam), cv2.COLORMAP_JET)
+
+    # Convert the input image to RGB
+    npic = np.array(input_img.squeeze(), dtype=np.uint8)
+    npic_rgb = cv2.cvtColor(npic, cv2.COLOR_GRAY2RGB)
+
+    # Resize the heatmap to match the input image size
+    resized_heatmap = cv2.resize(heatmap, (input_img.shape[3], input_img.shape[2]))
+
+    # Overlay the heatmap on the input image
+    cam_img = cv2.addWeighted(npic_rgb, 0.1, resized_heatmap, 0.5, 0)
+
+    return cam_img
+
 
 def detection():
     st.title("Methane Emission Detection")
@@ -248,12 +263,12 @@ def detection():
         if st.button('Predict'):
             with st.spinner('Generating prediction...'):
                 # Generate Grad-CAM
-                cam_img = Grad_CAM(image.detach()/65535, model)
+                cam_img = Grad_CAM(image.detach(), model)
 
                 # Create a figure with subplots
                 fig, ax = plt.subplots(figsize=(7, 5))  # Change the figure size here
                 # Display the heatmap
-                cax = ax.imshow(cam_img, cmap='hot')
+                cax = ax.imshow(cam_img, cmap='jet')
                 ax.axis('off') # hide the axes
                 # Add a colorbar
                 fig.colorbar(cax)
