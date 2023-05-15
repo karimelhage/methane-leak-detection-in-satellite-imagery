@@ -74,25 +74,27 @@ def impact_and_use_cases():
     #st.image('path_to_some_image', use_column_width=True, caption="Caption for your image")
 
 def create_model():
-    # Load the pre-trained ResNet101 model
-    resnet = models.resnet101(pretrained=False)
+    # Load the pre-trained ResNet50 model
+    import ssl
+    ssl._create_default_https_context = ssl._create_unverified_context
+    resnet50 = models.wide_resnet50_2(weights='Wide_ResNet50_2_Weights.IMAGENET1K_V2')
 
     # Modify the first layer to accept single-channel grayscale images
-    resnet.conv1 = torch.nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+    resnet50.conv1 = torch.nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
 
     # Modify the last fully connected layer for binary classification with softmax activation
     num_classes = 2  # 2 classes: 1 or 0
-    resnet.fc = torch.nn.Sequential(
-        torch.nn.Linear(resnet.fc.in_features, num_classes)
+    resnet50.fc = torch.nn.Sequential(
+        torch.nn.Linear(resnet50.fc.in_features, num_classes)
     )
 
-    return resnet
+    return resnet50
 
 # Define the model architecture
 model = create_model()
 
 # Load the state dictionary
-model.load_state_dict(torch.load('models/resnet_model.pth', map_location=torch.device('cpu')))
+model.load_state_dict(torch.load('models/resnet50_0.9268.pth', map_location=torch.device('cpu')))
 
 # Set the model to eval mode
 model.eval()
@@ -188,16 +190,13 @@ def detection():
     if uploaded_file is not None:
         # Load and preprocess the image
         image = load_and_prep_image(uploaded_file)
-        # Normalize the image
-        #image = image - image.min()
-        #image /= image.max()
 
         # Convert tensor back to PIL Image for displaying
         image_np = image.squeeze(0).detach().numpy() # squeeze removes dimensions of size 1 from the tensor
         # Remove any singleton dimensions (if image is grayscale, there is an extra singleton dimension)
         image_np = np.squeeze(image_np)
         # Convert the normalized image back to PIL Image
-        display_image = Image.fromarray((image_np * 255).astype(np.uint8))
+        display_image = Image.fromarray((image_np/65535 * 255).astype(np.uint8))
 
         # Display the uploaded image with matplotlib
         fig, ax = plt.subplots(figsize=(7, 5))
@@ -206,16 +205,16 @@ def detection():
         st.pyplot(fig)
 
         # Generate some space before the 'Predict' button
-        for _ in range(10):  # adjust the range as needed
+        for _ in range(10):
             st.empty()
 
         if st.button('Predict'):
             with st.spinner('Generating prediction...'):
                 # Generate Grad-CAM
-                cam_img = Grad_CAM(image.detach(), model)
+                cam_img = Grad_CAM(image.detach()/65535, model)
 
                 # Create a figure with subplots
-                fig, ax = plt.subplots(figsize=(7, 5))  # Change the figure size here
+                fig, ax = plt.subplots(figsize=(7, 5)) # Change the figure size here
                 # Display the heatmap
                 cax = ax.imshow(cam_img, cmap='hot')
                 ax.axis('off') # hide the axes
@@ -225,14 +224,17 @@ def detection():
 
                 # Make a prediction
                 output = model(image)
+                probs = torch.softmax(output, dim = 1)
+                pred = torch.argmax(probs, dim = 1).item()
 
-                # Postprocess the prediction
-                prediction = torch.sigmoid(output)
+                # prob, pred= torch.max(output.data, dim=1)
 
-                if prediction > 0.5:
+                if  pred == 1:
                     st.success("The model predicts that this image likely contains a methane plume.")
                 else:
                     st.info("The model predicts that this image likely does not contain a methane plume.")
+
+                st.write(f"Probability Confidence in Prediction: {probs.max().max() * 100:.2f}%")
 
     st.header("Disclaimer")
     st.markdown("This tool is intended to assist in methane plume detection. However, it does not guarantee 100% accuracy. Always corroborate with other data sources.")
