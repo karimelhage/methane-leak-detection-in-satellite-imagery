@@ -17,9 +17,6 @@ from folium.plugins import MarkerCluster
 from streamlit_folium import folium_static
 from datetime import datetime
 
-
-
-
 #PAGES = {
 #    "Home": home,
 #    "Detection": detection,
@@ -27,7 +24,9 @@ from datetime import datetime
 #    "About Us / Contact Us": about_and_contact
 #}
 
-# show map view with given lat lon data
+# load plume locations data
+df_plume = pd.read_csv('location_latlon.csv')
+
 def plot_on_map(df):
     # create a map centered at the mean of the latitude and longitude
     map_center = [df['lat'].mean(), df['lon'].mean()]
@@ -42,23 +41,11 @@ def plot_on_map(df):
         lon = row['lon']
         plume = row['plume']
         path = row['path']
-        if 'no_plume' in row['path']:
-            tooltip = f"Plume: {plume}\nPath: {datetime.strptime(path[16:24], '%Y%m%d').date()}"
-            icon = folium.Icon(color='green')
-            folium.Marker([lat, lon], tooltip=tooltip, icon=icon).add_to(marker_cluster)
 
-        else:
-            tooltip = f"Plume: {plume}\nPath: {datetime.strptime(path[13:21], '%Y%m%d').date()}"
-            icon = folium.Icon(color='red')
-            folium.Marker([lat, lon], tooltip=tooltip, icon=icon).add_to(marker_cluster)
+        folium.Marker([lat, lon], popup=f"Plume: {plume}, Path: {path}").add_to(marker_cluster)
 
-    # display the map
     return m
 
-# load data
-df_plume = pd.read_csv('location_latlon.csv')
-
-
 def home():
     st.title("Welcome to CleanR's Methane Emission Detection Tool")
     st.subheader("Using AI to Reduce Methane Emissions")
@@ -81,17 +68,25 @@ def home():
     Ready to start? Navigate to the 'Detection' page on the sidebar.
     """)
 
-    st.header("Plume Data Map")
-    st.markdown("Here is a map showing the location of methane plumes detected by our model:")
-    my_map = plot_on_map(df_plume)
+    st.header("Contact Us")
+    st.markdown("For any inquiries or feedback, please contact us at: info@cleanr.com")
+
+    # User input for filtering
+    plume_filter = st.selectbox('Choose plume filter', options = ['Both', 'Plume', 'No Plume'], index = 0)
+
+    # Filter data based on user selection
+    if plume_filter == 'Plume':
+        df_filtered = df_plume[df_plume['plume'] == 'yes']
+    elif plume_filter == 'No Plume':
+        df_filtered = df_plume[df_plume['plume'] == 'no']
+    else:
+        df_filtered = df_plume
+
+    # Call your function with the filtered data
+    my_map = plot_on_map(df_filtered) #plot_on_map(df_filtered, plume_filter)
+
     folium_static(my_map)
 
-
-    st.header("Contact Us")
-    st.markdown("For any inquiries or feedback, please contact us at: info@cleanr.com")
-
-    #st.image('path_to_some_image', use_column_width=True, caption="Caption for your image")
-
 def impact_and_use_cases():
     st.title("Impact and Use Cases")
 
@@ -116,69 +111,6 @@ def impact_and_use_cases():
 
     > "As a landfill operator, being able to monitor our site for methane emissions has been incredibly helpful. We've been able to identify several problem areas and address them quickly." - **Jane Doe, Waste Management Company**
     """)
-
-    #st.image('path_to_some_image', use_column_width=True, caption="Caption for your image")
-
-#PAGES = {
-#    "Home": home,
-#    "Detection": detection,
-#    "Impact and Use Cases": impact_and_use_cases,
-#    "About Us / Contact Us": about_and_contact
-#}
-
-def home():
-    st.title("Welcome to CleanR's Methane Emission Detection Tool")
-    st.subheader("Using AI to Reduce Methane Emissions")
-
-    st.write("""
-    ## About CleanR
-    CleanR is a fast-growing start-up specialized in Methane emissions reporting. We're on a mission to reduce methane emissions by providing a clear method for MRV: monitoring, reporting, and verification. Utilizing the power of satellite imagery and deep learning, we're able to detect potential methane leaks, helping us take a step forward in environmental preservation.
-
-    ## The Problem
-    Methane is one of the most potent greenhouse gases, and its leaks pose a significant challenge in the fight against climate change. Early detection of methane leaks can help to significantly reduce the environmental impact.
-
-    ## Our Solution
-    Our tool uses a deep learning model trained on satellite images to detect potential methane plumes. Once a grayscale satellite image is uploaded, our model analyzes it and highlights areas with potential methane leaks, providing a confidence score along with the prediction. It's an effective way to monitor large areas and identify potential methane leaks quickly.
-
-    ## How It Works
-    1. **Upload a grayscale satellite image in .tif format:** Our tool accepts grayscale satellite images in .tif format for analysis.
-    2. **Our model analyzes the image:** Using deep learning, our model identifies potential methane leaks in the image.
-    3. **View the results:** Our tool highlights areas of potential methane leaks and provides a confidence score for its prediction.
-
-    Ready to start? Navigate to the 'Detection' page on the sidebar.
-    """)
-
-    st.header("Contact Us")
-    st.markdown("For any inquiries or feedback, please contact us at: info@cleanr.com")
-
-    #st.image('path_to_some_image', use_column_width=True, caption="Caption for your image")
-
-def impact_and_use_cases():
-    st.title("Impact and Use Cases")
-
-    st.markdown("""
-    ## Impact
-    Methane is one of the most potent greenhouse gases, over 25 times more potent than carbon dioxide in terms of heat-trapping capability. By detecting methane leaks early, we can significantly reduce the environmental impact and contribute to the fight against climate change.
-
-    Our tool can help various industries and sectors, including oil and gas, waste management, and agriculture, by identifying and quantifying methane emissions, leading to more sustainable operations.
-
-    ## Use Cases
-    ### Oil and Gas Industry
-    Methane is a major component of natural gas. Unintended leaks during extraction, storage, and transportation can contribute significantly to greenhouse gas emissions. Our tool can help detect leaks early and prevent environmental damage.
-
-    ### Waste Management
-    Landfills are a major source of methane emissions. By using our tool, waste management facilities can monitor their sites for methane leaks and take appropriate action.
-
-    ### Agriculture
-    Methane is produced by certain agricultural practices, particularly those involving livestock. Our tool can help farmers identify potential sources of methane emissions on their farms and develop more sustainable practices.
-
-    ## Testimonials
-    > "CleanR's Methane Emission Detection Tool has been instrumental in helping us identify and fix several leaks in our natural gas infrastructure. It's easy to use and has already saved us a lot in potential fines and environmental damage." - **John Doe, Oil and Gas Company**
-
-    > "As a landfill operator, being able to monitor our site for methane emissions has been incredibly helpful. We've been able to identify several problem areas and address them quickly." - **Jane Doe, Waste Management Company**
-    """)
-
-    #st.image('path_to_some_image', use_column_width=True, caption="Caption for your image")
 
 def create_model():
     # Load the pre-trained ResNet50 model
@@ -233,9 +165,7 @@ def load_and_prep_image(image):
 
     # Define the transformation - convert to tensor
     transform = transforms.Compose([
-        transforms.ToTensor(),
-        # transforms.Normalize(mean=[0.485], std=[0.229]),  # normalize using settings for grayscale images
-    ])
+        transforms.ToTensor()])
 
     # Apply transformation and add an extra dimension for batch
     image = transform(image).unsqueeze(0)
@@ -321,7 +251,7 @@ def detection():
                 cam_img = Grad_CAM(image.detach()/65535, model)
 
                 # Create a figure with subplots
-                fig, ax = plt.subplots(figsize=(7, 5)) # Change the figure size here
+                fig, ax = plt.subplots(figsize=(7, 5))  # Change the figure size here
                 # Display the heatmap
                 cax = ax.imshow(cam_img, cmap='hot')
                 ax.axis('off') # hide the axes
@@ -333,13 +263,12 @@ def detection():
                 output = model(image)
                 probs = torch.softmax(output, dim = 1)
                 pred = torch.argmax(probs, dim = 1).item()
-
-                # prob, pred= torch.max(output.data, dim=1)
-
+                
                 if  pred == 1:
                     st.success("The model predicts that this image likely contains a methane plume.")
                 else:
                     st.info("The model predicts that this image likely does not contain a methane plume.")
+
 
                 st.write(f"Probability Confidence in Prediction: {probs.max().max() * 100:.2f}%")
 
@@ -382,11 +311,11 @@ def about_and_contact():
 
     # Display team member photos in a row
     st.markdown("<h2 style='text-align:center;'>Our Team</h2>", unsafe_allow_html=True)
-    st.markdown("<div style='display: flex; justify-content: center;'>", unsafe_allow_html=True)
-    for member in team_members:
-        with st.container():
-            st.image(member['photo'], use_column_width=False, caption=member['name'])
-    st.markdown("</div>", unsafe_allow_html=True)
+
+    cols = st.columns(len(team_members)) # creating columns
+    for i, member in enumerate(team_members):
+        with cols[i]:
+            st.image(member['photo'], width=150, caption=member['name'])  # set width of the images
 
     st.header("Contact Us")
     st.markdown("We'd love to hear from you. Whether you have a question about our tool, need assistance, or just want to provide feedback, feel free to get in touch.")
