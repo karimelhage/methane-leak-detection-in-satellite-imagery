@@ -52,8 +52,7 @@ pip install numpy pandas matplotlib streamlit torch torchvision Pillow opencv-py
 
 - Pretrained model
 
-Put the model weight file inside the models subdirectory.
-The file can be found here https://centralesupelec-my.sharepoint.com/:u:/g/personal/antoine_cloute_student-cs_fr/EQtmabBevsZJpJT3fLvzbY4B34iMsR-7kUZHIkRnqjF9SQ?e=Q9BPgn
+The pretrained is already loaded into the models folder. Please do not amend this folder.
 
 
 ## Running the Application
