@@ -36,7 +36,7 @@ def plot_on_map(df):
     return m
 
 def home():
-    st.title("Welcome to CleanR's Methane Detection Tool!")
+    st.title("Welcome to CleanR's GasPal V0!")
     st.subheader("Using AI to Detect Methane Emissions")
 
     st.write("""
@@ -48,31 +48,9 @@ def home():
 
     ## Our Solution
     Our tool uses a deep learning model trained on satellite images to detect potential methane plumes. Once a grayscale satellite image is uploaded, our model analyzes it and highlights areas with potential methane leaks, providing a confidence score along with the prediction. It's an effective way to monitor large areas and identify potential methane leaks quickly.
-
-    ## How It Works
-    1. **Upload a grayscale satellite image in .tif format:** Our tool accepts grayscale satellite images in .tif format for analysis.
-    2. **Our model analyzes the image:** Using deep learning, our model identifies potential methane leaks in the image.
-    3. **View the results:** Our tool highlights areas of potential methane leaks and provides a confidence score for its prediction.
-
-    Ready to start? Navigate to the 'Detection' page on the sidebar.
     """)
 
-    st.header("Example Images")
-    st.markdown("Here are some example images from our database")
-
-    st.markdown("**Images with Plumes**")
-    col1, col2 = st.columns(2)
-    col1.image("photos/gradcam_examples/plume_image_example.png", caption="Plume Image", use_column_width=True)
-    col2.image("photos/gradcam_examples/plume_heatmap_example.png", caption="Plume Heatmap", use_column_width=True)
-
-    st.markdown("**Images without Plumes**")
-    col3, col4 = st.columns(2)
-    col3.image("photos/gradcam_examples/no_plume_image_example.png", caption="No Plume Image", use_column_width=True)
-    col4.image("photos/gradcam_examples/no_plume_heatmap_example.png", caption="No Plume Heatmap", use_column_width=True)
-
-
-    st.header("Contact Us")
-    st.markdown("For any inquiries or feedback, please contact us at: info@cleanr.com")
+    st.header("Satellite imagery of data provider")
 
     # User input for filtering
     plume_filter = st.selectbox('Choose plume filter', options = ['Both', 'Plume', 'No Plume'], index = 0)
@@ -90,6 +68,13 @@ def home():
 
     folium_static(my_map)
 
+    st.write("""
+    Ready to start? Navigate to the 'Detection' page on the sidebar.
+    """)
+
+    st.header("Contact Us")
+    st.markdown("For any inquiries or feedback, please contact us at: info@cleanr.com")
+
 def impact_and_use_cases():
     st.title("Impact and Use Cases")
 
@@ -99,7 +84,7 @@ def impact_and_use_cases():
 
     ## Use Cases
     ### Oil and Gas Industry
-    Methane is a major component of natural gas.  Our tool can help detect leaks early and prevent environmental associated with methane leaks.
+    Methane is a major component of natural gas.  Our tool can help detect leaks early and prevent environmentalassociated with methane leaks.
     The results can be realized in being able to improve Environment and Social Governance through population impact detection and active site monitoring.
     Through monitoring, the application provides companies with a method track improvement in risk over time (for example through less leakages in a given year compared to the previous).
 
@@ -228,6 +213,26 @@ def Grad_CAM(input_img, model):
 def detection():
     st.title("Methane Emission Detection")
 
+    st.write("""
+    ## How It Works
+    1. **Upload a grayscale satellite image in .tif format:** Our tool accepts grayscale satellite images in .tif format for analysis.
+    2. **Our model analyzes the image:** Using deep learning, our model identifies potential methane leaks in the image.
+    3. **View the results:** Our tool highlights areas of potential methane leaks and provides a confidence score for its prediction.)
+    """)
+
+    st.header("Example Outputs")
+    st.markdown("Here are some example images from our database")
+
+    st.markdown("**Images with Plumes**")
+    col1, col2 = st.columns(2)
+    col1.image("photos/gradcam_examples/plume_image_example.png", caption="Plume Image", use_column_width=True)
+    col2.image("photos/gradcam_examples/plume_heatmap_example.png", caption="Plume Heatmap", use_column_width=True)
+
+    st.markdown("**Images without Plumes**")
+    col3, col4 = st.columns(2)
+    col3.image("photos/gradcam_examples/no_plume_image_example.png", caption="No Plume Image", use_column_width=True)
+    col4.image("photos/gradcam_examples/no_plume_heatmap_example.png", caption="No Plume Heatmap", use_column_width=True)
+
     st.markdown("""
     ## Instructions
     1. Upload a grayscale satellite image in .tif format.
@@ -294,7 +299,7 @@ def detection():
 
                 st.write(f"Probability Confidence in Prediction: {probs.max().max() * 100:.2f}%")
 
-    st.header("Previous Images and Predictions")
+    st.header("Prediction History")
     for i, (img, pred) in enumerate(zip(st.session_state['uploaded_images'], st.session_state['predictions'])):
         st.markdown(f"### Image {i+1}")
         st.image(img)
@@ -312,7 +317,6 @@ def about_and_contact():
 
     Our team of developers, data scientists, and environmental experts have worked tirelessly to develop our methane emission detection tool. We're committed to using technology to create a more sustainable future.
 
-    ## Our Team
     Meet our talented team of experts who have contributed to the development of our tool:
     """)
 
