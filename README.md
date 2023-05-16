@@ -1,7 +1,15 @@
-# Methane Leak Detection in Satellite Imagery
+# Methane Leak Detection in Satellite Imagery Using ResNet 
 ## Authors
 The project is done by [Leonardo Bassili](https://github.com/leobas0), [Antoine Cloute](https://github.com/AntAI-git), [Karim El Hage](https://github.com/karimelhage),[Yasmina Hobeika](https://github.com/yasminahobeika), [Annabelle Luo](https://github.com/annabelleluo), [Ali Najem](https://github.com/najemali), [Amine Zaamoun](https://github.com/Zaamine)
+## Objective
+The objective of the project is to develop an application capable of detecting methane leaks in provided satellite imagery  to assist with MRV: monitoring, reporting, and verification
 
-<a href="https://github.com/karimelhage/methane-leak-detection-in-satellite-imagery/graphs/contributors"> 
-  <img src="https://contrib.rocks/image?repo=karimelhage/methane-leak-detection-in-satellite-imagery" />
-</a>
+## Current Build
+The current build of the application is only capable of image classification (methane leak or no methane leak). There is also a GradCAM functionality capable to give a form of interpretability to the results.
+
+## Project Contents
+
+1 - Models: Contains the training methdology of the ResNet model used for classification in the application. This includes train-test split methdology, image augmentation training feature and actual model training. The notebook within the folder contains the training of several different models. However, the model with the best AUC was selected also considering the most reasonable train test split that avoids data leakage.
+
+2 - streamlit_web_app: Contains the Initial build of the application ausing StreamLit and having the best found model.
+
