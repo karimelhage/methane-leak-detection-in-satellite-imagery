@@ -36,7 +36,7 @@ def plot_on_map(df):
     return m
 
 def home():
-    st.title("Welcome to CleanR's U-Stink_V0!")
+    st.title("Welcome to CleanR's Methane Detection Tool!")
     st.subheader("Using AI to Detect Methane Emissions")
 
     st.write("""
@@ -99,7 +99,7 @@ def impact_and_use_cases():
 
     ## Use Cases
     ### Oil and Gas Industry
-    Methane is a major component of natural gas.  Our tool can help detect leaks early and prevent environmentalassociated with methane leaks.
+    Methane is a major component of natural gas.  Our tool can help detect leaks early and prevent environmental associated with methane leaks.
     The results can be realized in being able to improve Environment and Social Governance through population impact detection and active site monitoring.
     Through monitoring, the application provides companies with a method track improvement in risk over time (for example through less leakages in a given year compared to the previous).
 
