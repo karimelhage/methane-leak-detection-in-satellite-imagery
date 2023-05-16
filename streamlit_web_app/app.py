@@ -1,8 +1,4 @@
 import streamlit as st
-#from pages.detection import detection
-#from pages.home import home
-#from pages.impact_and_use_cases import impact_and_use_cases
-#from pages.about_and_contact import about_and_contact
 
 import torch
 from torchvision import transforms
@@ -16,13 +12,6 @@ import folium
 from folium.plugins import MarkerCluster
 from streamlit_folium import folium_static
 from datetime import datetime
-
-#PAGES = {
-#    "Home": home,
-#    "Detection": detection,
-#    "Impact and Use Cases": impact_and_use_cases,
-#    "About Us / Contact Us": about_and_contact
-#}
 
 # load plume locations data
 df_plume = pd.read_csv('./source/location_latlon.csv')
@@ -67,6 +56,20 @@ def home():
 
     Ready to start? Navigate to the 'Detection' page on the sidebar.
     """)
+
+    st.header("Example Images")
+    st.markdown("Here are some example images from our database")
+
+    st.markdown("**Images with Plumes**")
+    col1, col2 = st.columns(2)
+    col1.image("photos/gradcam_examples/plume_image_example.png", caption="Plume Image", use_column_width=True)
+    col2.image("photos/gradcam_examples/plume_heatmap_example.png", caption="Plume Heatmap", use_column_width=True)
+
+    st.markdown("**Images without Plumes**")
+    col3, col4 = st.columns(2)
+    col3.image("photos/gradcam_examples/no_plume_image_example.png", caption="No Plume Image", use_column_width=True)
+    col4.image("photos/gradcam_examples/no_plume_heatmap_example.png", caption="No Plume Heatmap", use_column_width=True)
+
 
     st.header("Contact Us")
     st.markdown("For any inquiries or feedback, please contact us at: info@cleanr.com")
@@ -148,6 +151,7 @@ def load_and_prep_image(image):
 
     # Define the transformation - convert to tensor
     transform = transforms.Compose([
+        transforms.Resize((64, 64)),
         transforms.ToTensor()])
 
     # Apply transformation and add an extra dimension for batch
@@ -237,6 +241,12 @@ def detection():
     2. Click on 'Predict' to get the model's prediction and see a saliency map.
     """)
 
+    # Initialize session state for uploaded images and predictions if not already
+    if "uploaded_images" not in st.session_state:
+        st.session_state['uploaded_images'] = []
+    if "predictions" not in st.session_state:
+        st.session_state['predictions'] = []
+
     uploaded_file = st.file_uploader("Choose a satellite image...", type="tif")
 
     if uploaded_file is not None:
@@ -278,14 +288,24 @@ def detection():
                 output = model(image)
                 probs = torch.softmax(output, dim = 1)
                 _,pred = torch.max(output, dim = 1)
+
+                # Store the uploaded image and prediction
+                st.session_state.uploaded_images.append(display_image)
                 
-                if  pred == 1:
+                if  pred.item() == 1:
                     st.success("The model predicts that this image likely contains a methane plume.")
+                    st.session_state['predictions'].append('Plume')
                 else:
                     st.info("The model predicts that this image likely does not contain a methane plume.")
-
+                    st.session_state['predictions'].append('No Plume')
 
                 st.write(f"Probability Confidence in Prediction: {probs.max().max() * 100:.2f}%")
+
+    st.header("Previous Images and Predictions")
+    for i, (img, pred) in enumerate(zip(st.session_state['uploaded_images'], st.session_state['predictions'])):
+        st.markdown(f"### Image {i+1}")
+        st.image(img)
+        st.markdown(f"**Prediction:** {pred}")
 
     st.header("Disclaimer")
     st.markdown("This tool is intended to assist in methane plume detection. However, it does not guarantee 100% accuracy. Always corroborate with other data sources.")
@@ -348,15 +368,6 @@ def about_and_contact():
     message = st.text_area("Your Message")
     if st.button("Send"):
         st.success("Thank you for your message! We'll get back to you as soon as possible.")
-
-# def main():
-#     st.sidebar.title("Navigation")
-#     selection = st.sidebar.radio("Go to", list(PAGES.keys()))
-#     page = PAGES[selection]
-#     page()
-
-# if __name__ == "__main__":
-#     main()
 
 st.sidebar.markdown("## Navigation")
 page = st.sidebar.radio("Go to", ['Home', 'Detection', 'Impact and Use Cases', 'About Us / Contact Us'])
