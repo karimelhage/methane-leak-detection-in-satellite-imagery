@@ -25,7 +25,7 @@ from datetime import datetime
 #}
 
 # load plume locations data
-df_plume = pd.read_csv('location_latlon.csv')
+df_plume = pd.read_csv('./source/location_latlon.csv')
 
 def plot_on_map(df):
     # create a map centered at the mean of the latitude and longitude
@@ -167,7 +167,7 @@ def Grad_CAM(input_img, model):
         grad.append(grad_output[0])
 
     handle_activation = model.layer4[2].conv3.register_forward_hook(activation_hook)
-    handle_gradient = model.layer4[2].conv3.register_backward_hook(gradient_hook)
+    handle_gradient = model.layer4[2].conv3.register_full_backward_hook(gradient_hook)
 
     # Forward pass to get activations
     out = model(input_img)
