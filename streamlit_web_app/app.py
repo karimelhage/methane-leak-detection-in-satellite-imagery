@@ -36,8 +36,8 @@ def plot_on_map(df):
     return m
 
 def home():
-    st.title("Welcome to CleanR's Methane Emission Detection Tool")
-    st.subheader("Using AI to Reduce Methane Emissions")
+    st.title("Welcome to CleanR's U-Stink_V0!")
+    st.subheader("Using AI to Detect Methane Emissions")
 
     st.write("""
     ## About CleanR
@@ -94,25 +94,18 @@ def impact_and_use_cases():
     st.title("Impact and Use Cases")
 
     st.markdown("""
-    ## Impact
-    Methane is one of the most potent greenhouse gases, over 25 times more potent than carbon dioxide in terms of heat-trapping capability. By detecting methane leaks early, we can significantly reduce the environmental impact and contribute to the fight against climate change.
-
     Our tool can help various industries and sectors, including oil and gas, waste management, and agriculture, by identifying and quantifying methane emissions, leading to more sustainable operations.
+    For this initial build, our primary target is Oil & Gas companies.
 
     ## Use Cases
     ### Oil and Gas Industry
-    Methane is a major component of natural gas. Unintended leaks during extraction, storage, and transportation can contribute significantly to greenhouse gas emissions. Our tool can help detect leaks early and prevent environmental damage.
-
-    ### Waste Management
-    Landfills are a major source of methane emissions. By using our tool, waste management facilities can monitor their sites for methane leaks and take appropriate action.
-
-    ### Agriculture
-    Methane is produced by certain agricultural practices, particularly those involving livestock. Our tool can help farmers identify potential sources of methane emissions on their farms and develop more sustainable practices.
+    Methane is a major component of natural gas.  Our tool can help detect leaks early and prevent environmentalassociated with methane leaks.
+    The results can be realized in being able to improve Environment and Social Governance through population impact detection and active site monitoring.
+    Through monitoring, the application provides companies with a method track improvement in risk over time (for example through less leakages in a given year compared to the previous).
 
     ## Testimonials
     > "CleanR's Methane Emission Detection Tool has been instrumental in helping us identify and fix several leaks in our natural gas infrastructure. It's easy to use and has already saved us a lot in potential fines and environmental damage." - **John Doe, Oil and Gas Company**
 
-    > "As a landfill operator, being able to monitor our site for methane emissions has been incredibly helpful. We've been able to identify several problem areas and address them quickly." - **Jane Doe, Waste Management Company**
     """)
 
 def create_model():
