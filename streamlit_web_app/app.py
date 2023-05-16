@@ -17,6 +17,12 @@ from datetime import datetime
 df_plume = pd.read_csv('./source/location_latlon.csv')
 
 def plot_on_map(df):
+    """
+    Function to plot given data on a folium map.
+    :param df: Dataframe with columns 'lat', 'lon', 'plume' and 'path'
+    :return: A folium map with markers at given latitudes and longitudes
+    """
+
     # create a map centered at the mean of the latitude and longitude
     map_center = [df['lat'].mean(), df['lon'].mean()]
     m = folium.Map(location=map_center, zoom_start=2)
@@ -31,11 +37,15 @@ def plot_on_map(df):
         plume = row['plume']
         path = row['path']
 
-        folium.Marker([lat, lon], popup=f"Plume: {plume}, Path: {path}").add_to(marker_cluster)
+        folium.Marker([lat, lon], popup=f"Plume: {plume}, Date: {path}").add_to(marker_cluster)
 
     return m
 
 def home():
+    """
+    Function to render the home page of the web application.
+    """
+
     st.title("Welcome to CleanR's GasPal V0!")
     st.subheader("Using AI to Detect Methane Emissions")
 
@@ -76,6 +86,10 @@ def home():
     st.markdown("For any inquiries or feedback, please contact us at: info@cleanr.com")
 
 def impact_and_use_cases():
+    """
+    Function to render the impact and use cases page of the web application.
+    """
+
     st.title("Impact and Use Cases")
 
     st.markdown("""
@@ -94,6 +108,11 @@ def impact_and_use_cases():
     """)
 
 def create_model():
+    """
+    Function to create and return a modified ResNet50 adapted to the satellite imagery used to train our image classification model.
+    :return: Modified ResNet50 model
+    """
+
     # Load the pre-trained ResNet50 model
     import ssl
     ssl._create_default_https_context = ssl._create_unverified_context
@@ -103,7 +122,7 @@ def create_model():
     resnet50.conv1 = torch.nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
 
     # Modify the last fully connected layer for binary classification with softmax activation
-    num_classes = 2  # 2 classes: 1 or 0
+    num_classes = 2 # 2 classes: 1 or 0
     resnet50.fc = torch.nn.Sequential(
         torch.nn.Linear(resnet50.fc.in_features, num_classes)
     )
@@ -121,6 +140,12 @@ model.eval()
 
 # Create a function to load and preprocess the image
 def load_and_prep_image(image):
+    """
+    Function to load an image, convert it to float, and apply necessary transformations.
+    :param image: The image file to load and preprocess.
+    :return: The preprocessed image.
+    """
+
     # Open the image file
     image = Image.open(image)
     
@@ -139,6 +164,13 @@ def load_and_prep_image(image):
 
 # Grad-CAM function
 def Grad_CAM(input_img, model):
+    """
+    Function to apply Gradient-weighted Class Activation Mapping (Grad-CAM) to an image.
+    :param input_img: The input image to apply Grad-CAM to.
+    :param model: The model used to classify the image.
+    :return: The Grad-CAM output.
+    """
+
     activation = []
     grad = []
 
@@ -209,8 +241,18 @@ def Grad_CAM(input_img, model):
 
     return cam_img
 
-
 def detection():
+    """
+    Function to create a Streamlit interface for methane emission detection.
+    
+    The function provides an interactive interface for users to upload satellite images in .tif format, 
+    runs a deep learning model to detect potential methane leaks in the image, and displays the results 
+    with confidence scores. The function also maintains a session state to store uploaded images and their 
+    predictions.
+    
+    The function does not have any parameters or return anything.
+    """
+
     st.title("Methane Emission Detection")
 
     st.write("""
@@ -309,6 +351,15 @@ def detection():
     st.markdown("This tool is intended to assist in methane plume detection. However, it does not guarantee 100% accuracy. Always corroborate with other data sources.")
 
 def about_and_contact():
+    """
+    Function to create a Streamlit interface for about us and contact us information.
+
+    The function provides an interactive interface displaying information about the CleanR start-up 
+    and contact details. It also includes a feedback or question form for users to fill out.
+
+    The function does not have any parameters or return anything.
+    """
+    
     st.title("About Us / Contact Us")
 
     st.markdown("""
