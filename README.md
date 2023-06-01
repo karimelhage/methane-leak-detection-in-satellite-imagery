@@ -14,3 +14,4 @@ The current build of the application is only capable of image classification (me
 
 2 - streamlit_web_app: Contains the Initial build of the application using StreamLit and having the best found model.
 
+3 - Reports: Contains the final deck presented to the jury. 
